@@ -1,17 +1,24 @@
-@import 'variables.module';
-@import 'mixin';
-@import 'transition';
-@import 'element-ui';
-@import 'sidebar';
-@import 'btn';
-@import 'eladmin';
+@import "variables.module";
+@import "mixin";
+@import "transition";
+@import "element-ui";
+@import "sidebar";
+@import "btn";
+@import "eladmin";
 
 body {
   height: 100%;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
+  font-family:
+    Helvetica Neue,
+    Helvetica,
+    PingFang SC,
+    Hiragino Sans GB,
+    Microsoft YaHei,
+    Arial,
+    sans-serif;
 }
 
 label {
@@ -107,7 +114,8 @@ aside {
   display: block;
   line-height: 32px;
   font-size: 16px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   color: #2c3e50;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -138,7 +146,7 @@ aside {
 }
 
 .text-center {
-  text-align: center
+  text-align: center;
 }
 
 .sub-navbar {
@@ -149,7 +157,13 @@ aside {
   text-align: right;
   padding-right: 20px;
   transition: 600ms ease position;
-  background: linear-gradient(90deg, rgba(32, 182, 249, 1) 0%, rgba(32, 182, 249, 1) 0%, rgba(33, 120, 241, 1) 100%, rgba(33, 120, 241, 1) 100%);
+  background: linear-gradient(
+    90deg,
+    rgba(32, 182, 249, 1) 0%,
+    rgba(32, 182, 249, 1) 0%,
+    rgba(33, 120, 241, 1) 100%,
+    rgba(33, 120, 241, 1) 100%
+  );
 
   .subtitle {
     font-size: 20px;
@@ -184,27 +198,27 @@ aside {
   z-index: 1000 !important;
 }
 //2021-12-6 修改弹框组件
-.el-dialog__header{
-  padding-top:10px;
-  background: #ECF5FF;
+.el-dialog__header {
+  padding-top: 10px;
+  background: #ecf5ff;
 }
-.el-dialog__headerbtn{
-  top:13px;
+.el-dialog__headerbtn {
+  top: 13px;
 }
 // 表单组件
-.el-form-item__label{
-  color:#6B6F73;
+.el-form-item__label {
+  color: #6b6f73;
 }
-.el-dialog__body{
+.el-dialog__body {
   padding-bottom: 20px;
 }
-.el-dialog__footer{
-  border-top:1px solid #F0F1F4;
+.el-dialog__footer {
+  border-top: 1px solid #f0f1f4;
   padding: 24px;
 }
-.detail_btn{
-  color: #2788ED!important;
+.detail_btn {
+  color: #2788ed !important;
 }
-.delet_btn{
-  color: #ED6427!important;
+.delet_btn {
+  color: #ed6427 !important;
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="login" :style="{ backgroundImage: `url(${Background})` }">
     <el-form
-      ref="loginForm"
+      ref="loginFormRef"
       :model="loginForm"
       :rules="loginRules"
       label-position="left"
@@ -13,7 +13,7 @@
         <el-input
           v-model="loginForm.username"
           type="text"
-          auto-complete="off"
+          autocomplete="off"
           placeholder="账号"
         >
           <template #prefix>
@@ -59,7 +59,6 @@
       <el-form-item style="width: 100%">
         <el-button
           :loading="loading"
-          size="small"
           type="primary"
           style="width: 100%"
           @click.prevent="handleLogin"
@@ -71,152 +70,141 @@
     </el-form>
   </div>
 </template>
-
-<script>
-import { encrypt } from "@/utils/rsaEncrypt";
+<script setup>
+import { ref, watch, onMounted, reactive } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { ElNotification } from "element-plus";
+import { encrypt } from "@/utils/rsaEncrypt.js";
 import Config from "@/settings";
 import { getCodeImg } from "@/api/login";
 import Cookies from "js-cookie";
 import Background from "@/assets/images/background.jpg";
 import { getOcr } from "@/api/biochemical/biochemical";
 
-export default {
-  name: "Login",
-  data() {
-    return {
-      Background: Background,
-      codeUrl: "",
-      cookiePass: "",
-      loginForm: {
-        username: "",
-        password: "",
-        rememberMe: false,
-        code: "",
-        uuid: "",
-      },
-      loginRules: {
-        username: [
-          { required: true, trigger: "blur", message: "用户名不能为空" },
-        ],
-        password: [
-          { required: true, trigger: "blur", message: "密码不能为空" },
-        ],
-        code: [
-          { required: true, trigger: "change", message: "验证码不能为空" },
-        ],
-      },
-      loading: false,
-      redirect: undefined,
-    };
-  },
-  watch: {
-    $route: {
-      handler: function (route) {
-        this.redirect = route.query && route.query.redirect;
-      },
-      immediate: true,
-    },
-  },
-  created() {
-    // 获取验证码
-    this.getCode();
-    // 获取用户名密码等Cookie
-    this.getCookie();
-    // token 过期提示
-    this.point();
-  },
-  methods: {
-    getCode() {
-      getCodeImg().then((res) => {
-        console.log(res, "res");
-        this.codeUrl = res.img;
-        this.loginForm.uuid = res.uuid;
-      });
-    },
-    getCookie() {
-      const username = Cookies.get("username");
-      let password = Cookies.get("password");
-      const rememberMe = Cookies.get("rememberMe");
-      // 保存cookie里面的加密后的密码
-      this.cookiePass = password === undefined ? "" : password;
-      password = password === undefined ? this.loginForm.password : password;
-      this.loginForm = {
-        username: username === undefined ? this.loginForm.username : username,
-        password: password,
-        rememberMe: rememberMe === undefined ? false : Boolean(rememberMe),
-        code: "",
-      };
-    },
-    handleLogin() {
-      this.$refs.loginForm.validate((valid) => {
-        const user = {
-          username: this.loginForm.username,
-          password: this.loginForm.password,
-          rememberMe: this.loginForm.rememberMe,
-          code: this.loginForm.code,
-          uuid: this.loginForm.uuid,
-        };
-        if (user.password !== this.cookiePass) {
-          user.password = encrypt(user.password);
-        }
-        if (valid) {
-          this.loading = true;
-          if (user.rememberMe) {
-            Cookies.set("username", user.username, {
-              expires: Config.passCookieExpires,
-            });
-            Cookies.set("password", user.password, {
-              expires: Config.passCookieExpires,
-            });
-            Cookies.set("rememberMe", user.rememberMe, {
-              expires: Config.passCookieExpires,
-            });
-          } else {
-            Cookies.remove("username");
-            Cookies.remove("password");
-            Cookies.remove("rememberMe");
-          }
-          this.$store
-            .dispatch("Login", user)
-            .then(() => {
-              this.loading = false;
-              this.$router.push({ path: this.redirect || "/" });
-            })
-            .then(() => {
-              getOcr().then((res) => {
-                if (res["echartsVOS"]) {
-                  localStorage.setItem("showBar", "true");
-                  // this.showBar = true
-                } else {
-                  localStorage.setItem("showBar", "false");
+import user from "@/store/modules/user.js";
+const userStore = user();
 
-                  // this.showBar = false
-                }
-              });
-            })
-            .catch(() => {
-              this.loading = false;
-              this.getCode();
-            });
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-      });
-    },
-    point() {
-      const point = Cookies.get("point") !== undefined;
-      if (point) {
-        this.$notify({
-          title: "提示",
-          message: "当前登录状态已过期，请重新登录！",
-          type: "warning",
-          duration: 5000,
+const codeUrl = ref("");
+const cookiePass = ref("");
+const loading = ref(false);
+const redirect = ref(undefined);
+const $router = useRouter();
+const $route = useRoute();
+let loginForm = reactive({
+  name: "",
+  username: "",
+  password: "",
+  rememberMe: false,
+  code: "",
+  uuid: "",
+});
+
+const loginFormRef = ref();
+
+console.log("loginForm", loginForm);
+const loginRules = {
+  username: [{ required: true, trigger: "blur", message: "用户名不能为空" }],
+  password: [{ required: true, trigger: "blur", message: "密码不能为空" }],
+  code: [{ required: true, trigger: "change", message: "验证码不能为空" }],
+};
+
+watch($route, (route) => {
+  redirect.value = route.query && route.query.redirect;
+});
+
+onMounted(() => {
+  // 获取验证码
+  getCode();
+  // 获取用户名密码等Cookie
+  getCookie();
+  // token 过期提示
+  point();
+});
+
+const getCode = () => {
+  getCodeImg().then((res) => {
+    console.log(res, "res");
+    codeUrl.value = res.img;
+    loginForm.uuid = res.uuid;
+  });
+};
+const getCookie = () => {
+  const username = Cookies.get("username");
+  let password = Cookies.get("password");
+  const rememberMe = Cookies.get("rememberMe");
+  // 保存cookie里面的加密后的密码
+  cookiePass.value = password === undefined ? "" : password;
+  password = password === undefined ? loginForm.password : password;
+
+  loginForm.username = username === undefined ? loginForm.username : username;
+  loginForm.password = password;
+  loginForm.rememberMe = rememberMe === undefined ? false : Boolean(rememberMe);
+};
+const handleLogin = () => {
+  loginFormRef.value.validate((valid) => {
+    const user = {
+      username: loginForm.username,
+      password: loginForm.password,
+      rememberMe: loginForm.rememberMe,
+      code: loginForm.code,
+      uuid: loginForm.uuid,
+    };
+    if (user.password !== cookiePass.value) {
+      user.password = encrypt(user.password);
+    }
+    if (valid) {
+      loading.value = true;
+      if (user.rememberMe) {
+        Cookies.set("username", user.username, {
+          expires: Config.passCookieExpires,
         });
-        Cookies.remove("point");
+        Cookies.set("password", user.password, {
+          expires: Config.passCookieExpires,
+        });
+        Cookies.set("rememberMe", user.rememberMe, {
+          expires: Config.passCookieExpires,
+        });
+      } else {
+        Cookies.remove("username");
+        Cookies.remove("password");
+        Cookies.remove("rememberMe");
       }
-    },
-  },
+      userStore
+        .Login(user)
+        .then(() => {
+          loading.value = false;
+          $router.push({ path: redirect.value || "/" });
+        })
+        .then(() => {
+          getOcr().then((res) => {
+            if (res["echartsVOS"]) {
+              localStorage.setItem("showBar", "true");
+            } else {
+              localStorage.setItem("showBar", "false");
+            }
+          });
+        })
+        .catch(() => {
+          loading.value = false;
+          getCode();
+        });
+    } else {
+      console.log("error submit!!");
+      return false;
+    }
+  });
+};
+const point = () => {
+  const point = Cookies.get("point") !== undefined;
+  if (point) {
+    ElNotification({
+      title: "提示",
+      message: "当前登录状态已过期，请重新登录！",
+      type: "warning",
+      duration: 5000,
+    });
+    Cookies.remove("point");
+  }
 };
 </script>
 
