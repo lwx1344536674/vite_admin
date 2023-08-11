@@ -24,6 +24,7 @@ const user = defineStore("user", {
           userInfo.uuid,
         )
           .then((res) => {
+            console.log(res, "res");
             setToken(res.token, rememberMe);
             localStorage.setItem("hosTreeNode", res.user.hosTreeNode);
             localStorage.setItem("user", JSON.stringify(res.user));
@@ -32,12 +33,14 @@ const user = defineStore("user", {
               localStorage.setItem("crcIds", JSON.stringify(res.crcIds));
             }
             this.token = res.token;
-            setUserInfo(res);
+            this.setUserInfo(res);
             // 第一次加载菜单时用到， 具体见 src 目录下的 permission.js
             this.loadMenus = true;
             resolve();
+            console.log(666666666);
           })
           .catch((error) => {
+            console.log(error, "error");
             reject(error);
           });
       });
@@ -48,7 +51,7 @@ const user = defineStore("user", {
       return new Promise((resolve, reject) => {
         getInfo()
           .then((res) => {
-            setUserInfo(res);
+            this.setUserInfo(res);
             resolve(res);
           })
           .catch((error) => {
@@ -61,11 +64,19 @@ const user = defineStore("user", {
       return new Promise((resolve, reject) => {
         logout()
           .then(() => {
-            logOut();
+            this.token = "token";
+            this.roles = [];
+            localStorage.removeItem("hospital");
+            localStorage.removeItem("crcIds");
+            removeToken();
             resolve();
           })
           .catch((error) => {
-            logOut();
+            this.token = "token";
+            this.roles = [];
+            localStorage.removeItem("hospital");
+            localStorage.removeItem("crcIds");
+            removeToken();
             reject(error);
           });
       });
@@ -76,25 +87,15 @@ const user = defineStore("user", {
         this.loadMenus = loadMenus;
       });
     },
+    setUserInfo(res) {
+      if (res.roles.length === 0) {
+        this.roles = ["ROLE_SYSTEM_DEFAULT"];
+      } else {
+        this.roles = res.roles;
+      }
+      this.user = res.user;
+    },
   },
 });
-
-export const logOut = () => {
-  this.token = "token";
-  this.roles = [];
-  localStorage.removeItem("hospital");
-  localStorage.removeItem("crcIds");
-  removeToken();
-};
-
-export const setUserInfo = (res) => {
-  // 如果没有任何权限，则赋予一个默认的权限，避免请求死循环
-  if (res.roles.length === 0) {
-    this.roles = ["ROLE_SYSTEM_DEFAULT"];
-  } else {
-    this.roles = res.roles;
-  }
-  this.user = res.user;
-};
 
 export default user;

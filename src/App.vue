@@ -1,11 +1,7 @@
-<script setup>
-</script>
+<script setup name="app"></script>
 
 <template>
-  <el-config-provider >
-<!-- size: 组件大小 large   -->
-    <router-view />
-  </el-config-provider>
+  <router-view />
 </template>
 
 <style scoped></style>

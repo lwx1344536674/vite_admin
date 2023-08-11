@@ -8,9 +8,9 @@ const tagsView = defineStore("tagsView", {
     };
   },
   actions: {
-    addView({ dispatch }, view) {
-      dispatch("addVisitedView", view);
-      dispatch("addCachedView", view);
+    addView(view) {
+      this.addVisitedView(view);
+      this.addCachedView(view);
     },
     addVisitedView(view) {
       if (this.visitedViews.some((v) => v.path === view.path)) return;

@@ -1,13 +1,12 @@
-import { createRouter, createWebHashHistory } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 import Layout from "@/layout/index.vue";
 
 export const constantRouterMap = [
   {
-    path: "/",
+    path: "/login",
     meta: { title: "登录", noCache: true },
     component: () => import("@/views/login.vue"),
     hidden: true,
-    redirect: "/login",
   },
   {
     path: "/404",
@@ -34,7 +33,7 @@ export const constantRouterMap = [
 
 export default createRouter({
   // mode: 'hash',
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   scrollBehavior: () => ({ top: 0 }),
   routes: constantRouterMap,
 });

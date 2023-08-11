@@ -17,7 +17,7 @@ import "@/router/index.js";
 
 const app = createApp(App);
 app.component("svg-Icon", SvgIcon);
-app.use(store);
 app.use(router);
+app.use(store);
 
 app.mount("#app");

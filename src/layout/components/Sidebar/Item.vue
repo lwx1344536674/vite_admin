@@ -13,18 +13,16 @@ export default {
       default: "",
     },
   },
-  render(context) {
-    const { icon, title } = context.props;
+  render() {
     const vnodes = [];
 
-    if (icon) {
+    if (this.icon) {
       // vnodes.push(<svg-icon icon-class={icon}/>)
-      vnodes.push(h("svg-icon", { "icon-class": icon }));
+      vnodes.push(h("svg-icon", { "icon-class": this.icon }));
     }
 
-    if (title) {
-
-      vnodes.push(h("span", { slot: "title", innerHTML: title }));
+    if (this.title) {
+      vnodes.push(h("span", { slot: "title", innerHTML: this.title }));
     }
     return vnodes;
   },

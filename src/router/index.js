@@ -1,13 +1,12 @@
 import router from "./routers";
-import common from "@/store/modules/index.js";
 import user from "@/store/modules/user.js";
-import permission from "@/store/modules/permission.js";
+
 import Config from "@/settings";
 import NProgress from "nprogress"; // progress bar
 import "nprogress/nprogress.css"; // progress bar style
 import { getToken } from "@/utils/auth"; // getToken from cookie
 import { buildMenus } from "@/api/system/menu";
-import { filterAsyncRouter } from "@/store/modules/permission";
+import permission, { filterAsyncRouter } from "@/store/modules/permission";
 import Layout from "../layout/index.vue";
 NProgress.configure({ showSpinner: false }); // NProgress Configuration
 
@@ -52,7 +51,7 @@ router.beforeEach((to, from, next) => {
       next({ path: "/" });
       NProgress.done();
     } else {
-      if (common().roles.length === 0) {
+      if (user().roles.length === 0) {
         // 判断当前用户是否已拉取完user_info信息
         user()
           .GetInfo()
@@ -69,10 +68,13 @@ router.beforeEach((to, from, next) => {
               });
           });
         // 登录时未拉取 菜单，在此处拉取
-      } else if (common().loadMenus) {
+      } else if (user().loadMenus) {
         // 修改成false，防止死循环
-        user().updateLoadMenus();
-        loadMenus(next, to);
+        user()
+          .updateLoadMenus()
+          .then(() => {
+            loadMenus(next, to);
+          });
       } else {
         next();
       }
@@ -108,54 +110,52 @@ const loadMenus = (next, to) => {
         children: [
           {
             path: "home",
-            component: () => import("@/views/home"),
+            component: () => import("@/views/home.vue"),
             name: "Home",
             hidden: false,
             meta: { title: "首页", icon: "home", affix: true, noCache: true },
           },
         ],
       });
-      router.addRoute([
-        {
-          path: "/",
-          component: Layout,
-          redirect: "/home",
-          hidden: false,
-          children: [
-            {
-              path: "home",
-              component: () => import("@/views/home"),
-              name: "home",
-              hidden: false,
-              meta: { title: "首页", icon: "home", affix: true, noCache: true },
-            },
-          ],
-        },
-      ]);
-    } else {
-      /* router.addRoutes([{
-        path: '/',
+      router.addRoute({
+        path: "/",
         component: Layout,
-        redirect: '/organ/organ-index'
-      }])*/
-
-      router.addRoute([
+        redirect: "/home",
+        hidden: false,
+        children: [
+          {
+            path: "home",
+            component: () => import("@/views/home.vue"),
+            name: "home",
+            hidden: false,
+            meta: { title: "首页", icon: "home", affix: true, noCache: true },
+          },
+        ],
+      });
+    } else {
+      /* router.addRoute(
         {
           path: "/",
           component: Layout,
-          redirect: "/home",
-          hidden: false,
-          children: [
-            {
-              path: "home",
-              component: () => import("@/views/home"),
-              name: "home",
-              hidden: false,
-              meta: { title: "首页", icon: "home", affix: true, noCache: true },
-            },
-          ],
+          redirect: "/organ/organ-index",
         },
-      ]);
+      );*/
+
+      router.addRoute({
+        path: "/",
+        component: Layout,
+        redirect: "/home",
+        hidden: false,
+        children: [
+          {
+            path: "home",
+            component: () => import("@/views/home.vue"),
+            name: "home",
+            hidden: false,
+            meta: { title: "首页", icon: "home", affix: true, noCache: true },
+          },
+        ],
+      });
     }
     const sidebarRoutes = filterAsyncRouter(sdata);
     permission()

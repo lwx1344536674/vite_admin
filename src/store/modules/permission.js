@@ -2,17 +2,23 @@ import { constantRouterMap } from "@/router/routers.js";
 import Layout from "@/layout/index.vue";
 import ParentView from "@/components/ParentView/index.vue";
 import { defineStore } from "pinia";
+const modules = import.meta.glob("./../../views/**/*.vue");
 
 const permission = defineStore("permission", {
-  state: {
-    routers: constantRouterMap,
-    addRouters: [],
-    sidebarRouters: [],
+  state: () => {
+    return {
+      routers: constantRouterMap,
+      addRouters: [],
+      sidebarRouters: [],
+    };
   },
   actions: {
     GenerateRoutes(routers) {
-      this.addRouters = routers;
-      this.routers = constantRouterMap.concat(routers);
+      return new Promise((resolve) => {
+        this.addRouters = routers;
+        this.routers = constantRouterMap.concat(routers);
+        resolve();
+      });
     },
     SetSidebarRouters(routers) {
       this.sidebarRouters = constantRouterMap.concat(routers);
@@ -38,7 +44,7 @@ export const filterAsyncRouter = (routers, isRewrite = false) => {
       }
     }
     if (router.children && router.children.length) {
-      router.children = filterAsyncRouter(router.children, router);
+      router.children = filterAsyncRouter(router.children, isRewrite);
     }
     return true;
   });
@@ -64,10 +70,15 @@ function filterChildren(childrenMap) {
   });
   return children;
 }
-
 export const loadView = (view) => {
-  console.log(view, "view");
-  // return () => import(`@/views/${view}/*.vue`);
+  let res;
+  for (const path in modules) {
+    const dir = path.split("views/")[1].split(".vue")[0];
+    if (dir === view) {
+      res = () => modules[path]();
+    }
+  }
+  return res;
 };
 
 export default permission;

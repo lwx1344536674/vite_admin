@@ -37,7 +37,7 @@
 <script>
 // import ThemePicker from '@/components/ThemePicker'
 import settings from "@/store/modules/settings.js";
-const settingsStore = settings();
+
 export default {
   // components: { ThemePicker },
   data() {
@@ -49,7 +49,7 @@ export default {
         return this.$store.state.settings.fixedHeader;
       },
       set(val) {
-        settingsStore.changeSetting({
+        settings().changeSetting({
           key: "fixedHeader",
           value: val,
         });
@@ -60,7 +60,7 @@ export default {
         return this.$store.state.settings.tagsView;
       },
       set(val) {
-        settingsStore.changeSetting({
+        settings().changeSetting({
           key: "tagsView",
           value: val,
         });
@@ -68,10 +68,10 @@ export default {
     },
     sidebarLogo: {
       get() {
-        return settingsStore.sidebarLogo;
+        return settings().sidebarLogo;
       },
       set(val) {
-        settingsStore.changeSetting({
+        settings().changeSetting({
           key: "sidebarLogo",
           value: val,
         });
@@ -79,10 +79,10 @@ export default {
     },
     uniqueOpened: {
       get() {
-        return settingsStore.uniqueOpened;
+        return settings().uniqueOpened;
       },
       set(val) {
-        settingsStore.changeSetting({
+        settings().changeSetting({
           key: "uniqueOpened",
           value: val,
         });
@@ -91,7 +91,7 @@ export default {
   },
   methods: {
     themeChange(val) {
-      settingsStore.changeSetting({
+      settings().changeSetting({
         key: "theme",
         value: val,
       });

@@ -1,139 +1,98 @@
 <template>
   <div class="navbar">
-    <hamburger id="hamburger-container" :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
+    <hamburger
+      id="hamburger-container"
+      :is-active="sidebar.opened"
+      class="hamburger-container"
+      @toggleClick="toggleSideBar"
+    />
 
     <breadcrumb id="breadcrumb-container" class="breadcrumb-container" />
 
     <div class="right-menu">
-      <!--      <template v-if="device!=='mobile'">-->
-      <!--        <search id="header-search" class="right-menu-item" />-->
-
-      <!--        <el-tooltip content="项目文档" effect="dark" placement="bottom">-->
-      <!--          <Doc class="right-menu-item hover-effect" />-->
-      <!--        </el-tooltip>-->
-
-      <!--        <el-tooltip content="全屏缩放" effect="dark" placement="bottom">-->
-      <!--          <screenfull id="screenfull" class="right-menu-item hover-effect" />-->
-      <!--        </el-tooltip>-->
-
-      <!--        <el-tooltip content="布局设置" effect="dark" placement="bottom">-->
-      <!--          <size-select id="size-select" class="right-menu-item hover-effect" />-->
-      <!--        </el-tooltip>-->
-
-      <!--      </template>-->
-
-      <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
+      <el-dropdown
+        class="avatar-container right-menu-item hover-effect"
+        trigger="click"
+      >
         <div class="avatar-wrapper">
           <!--          <img :src="user.avatarName ? baseApi + '/avatar/' + user.avatarName : Avatar" class="user-avatar">-->
-          <img :src="Avatar" class="user-avatar">
+          <img :src="Avatar" class="user-avatar" alt="" />
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown">
-          <span style="display:block;" @click="show = true">
-            <el-dropdown-item>
-              布局设置
-            </el-dropdown-item>
+          <span style="display: block" @click="show = true">
+            <el-dropdown-item> 布局设置 </el-dropdown-item>
           </span>
           <router-link to="/user/center">
-            <el-dropdown-item>
-              个人中心
-            </el-dropdown-item>
+            <el-dropdown-item> 个人中心 </el-dropdown-item>
           </router-link>
-          <span style="display:block;" @click="open">
-            <el-dropdown-item divided>
-              退出登录
-            </el-dropdown-item>
+          <span style="display: block" @click="open">
+            <el-dropdown-item divided> 退出登录 </el-dropdown-item>
           </span>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
   </div>
 </template>
+<script setup>
+import { ref, computed, watch } from "vue";
+import { ElNotification } from "element-plus";
+import Breadcrumb from "@/components/Breadcrumb/index.vue";
+import Hamburger from "@/components/Hamburger/index.vue";
+import Avatar from "@/assets/images/avatar.png";
+import app from "@/store/modules/app.js";
+import user from "@/store/modules/user.js";
+import settings from "@/store/modules/settings.js";
+import api from "@/store/modules/api.js";
 
-<script>
-// import { mapGetters } from 'vuex'
-/*import Breadcrumb from '@/components/Breadcrumb'
-import Hamburger from '@/components/Hamburger'
-import Doc from '@/components/Doc'
-import Screenfull from '@/components/Screenfull'
-import SizeSelect from '@/components/SizeSelect'
-import Search from '@/components/HeaderSearch'*/
-import Avatar from '@/assets/images/avatar.png'
+const sidebar = computed(() => app().sidebar);
+const device = computed(() => app().device);
+const users = computed(() => user().user);
+const baseApi = computed(() => api().baseApi);
+const show = computed(() => settings().showSettings);
+watch(show, (val) => {
+  settings().changeSetting({ key: "showSettings", value: val });
+});
 
-export default {
-  components: {
-   /* Breadcrumb,
-    Hamburger,
-    Screenfull,
-    SizeSelect,
-    Search,
-    Doc*/
-  },
-  data() {
-    return {
-      Avatar: Avatar,
-      dialogVisible: false
-    }
-  },
-  computed: {
-    /*...mapGetters([
-      'sidebar',
-      'device',
-      'user',
-      'baseApi'
-    ]),*/
-    /*show: {
-      get() {
-        return this.$store.state.settings.showSettings
-      },
-      set(val) {
-        this.$store.dispatch('settings/changeSetting', {
-          key: 'showSettings',
-          value: val
-        })
-      }
-    }*/
-  },
-  methods: {
-    toggleSideBar() {
-      // this.$store.dispatch('app/toggleSideBar')
-    },
-    open() {
-      this.$confirm('确定注销并退出系统吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.logout()
-      })
-    },
-    logout() {
-      this.$store.dispatch('LogOut').then(() => {
-        location.reload()
-      })
-    }
-  }
-}
+const toggleSideBar = () => {
+  app().toggleDevice("");
+};
+const open = () => {
+  ElNotification({
+    title: "确定注销并退出系统吗？",
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  }).then(() => {
+    this.logout();
+  });
+};
+const logout = () => {
+  user()
+    .LogOut()
+    .then(() => {
+      location.reload();
+    });
+};
 </script>
-
 <style lang="scss" scoped>
 .navbar {
   height: 50px;
   overflow: hidden;
   position: relative;
-  background: #2788ED;
-  box-shadow: 0 1px 4px rgba(0,21,41,.08);
+  background: #2788ed;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
 
   .hamburger-container {
     line-height: 46px;
     height: 100%;
     float: left;
     cursor: pointer;
-    transition: background .3s;
-    -webkit-tap-highlight-color:transparent;
+    transition: background 0.3s;
+    -webkit-tap-highlight-color: transparent;
 
     &:hover {
-      background: rgba(0, 0, 0, .025)
+      background: rgba(0, 0, 0, 0.025);
     }
   }
 
@@ -165,10 +124,10 @@ export default {
 
       &.hover-effect {
         cursor: pointer;
-        transition: background .3s;
+        transition: background 0.3s;
 
         &:hover {
-          background: rgba(0, 0, 0, .025)
+          background: rgba(0, 0, 0, 0.025);
         }
       }
     }
@@ -193,7 +152,7 @@ export default {
           right: -20px;
           top: 25px;
           font-size: 12px;
-          color:#fff;
+          color: #fff;
         }
       }
     }

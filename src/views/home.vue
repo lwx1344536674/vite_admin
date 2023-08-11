@@ -1,11 +1,11 @@
 <template>
   <div class="dashboard-container">
     <div class="dashboard-editor-container">
-      <panel-group :panel-group-data="panelGroupData" @queryData="queryData" />
+      <!--      <panel-group :panel-group-data="panelGroupData" @queryData="queryData" />-->
       <el-row
         style="background: #fff; padding: 16px 16px 0; margin-bottom: 32px"
       >
-        <line-chart :chart-data="lineChartData" />
+        <!--        <line-chart :chart-data="lineChartData" />-->
       </el-row>
     </div>
   </div>
@@ -26,8 +26,8 @@ const lineChartData = {
 export default {
   name: "Dashboard",
   components: {
-    PanelGroup,
-    LineChart,
+    /* PanelGroup,
+    LineChart,*/
   },
   data() {
     return {

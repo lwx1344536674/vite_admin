@@ -46,11 +46,11 @@
 </template>
 
 <script>
-import path from "path";
 import { isExternal } from "@/utils/validate";
 import Item from "./Item.vue";
 import AppLink from "./Link.vue";
 import FixiOSBug from "./FixiOSBug";
+import { getNormalPath } from "@/utils/ruoyi";
 
 export default {
   name: "SidebarItem",
@@ -102,7 +102,7 @@ export default {
 
       return false;
     },
-    resolvePath(routePath) {
+    /* resolvePath(routePath) {
       if (isExternal(routePath)) {
         return routePath;
       }
@@ -110,6 +110,23 @@ export default {
         return this.basePath;
       }
       return path.resolve(this.basePath, routePath);
+    },*/
+
+    resolvePath(routePath, routeQuery) {
+      if (isExternal(routePath)) {
+        return routePath;
+      }
+      if (isExternal(this.basePath)) {
+        return this.basePath;
+      }
+      if (routeQuery) {
+        let query = JSON.parse(routeQuery);
+        return {
+          path: getNormalPath(this.basePath + "/" + routePath),
+          query: query,
+        };
+      }
+      return getNormalPath(this.basePath + "/" + routePath);
     },
   },
 };

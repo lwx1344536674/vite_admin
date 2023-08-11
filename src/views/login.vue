@@ -70,8 +70,8 @@
     </el-form>
   </div>
 </template>
-<script setup>
-import { ref, watch, onMounted, reactive } from "vue";
+<script setup name="login">
+import { ref, watch, onMounted, reactive, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElNotification } from "element-plus";
 import { encrypt } from "@/utils/rsaEncrypt.js";
@@ -108,8 +108,9 @@ const loginRules = {
   code: [{ required: true, trigger: "change", message: "验证码不能为空" }],
 };
 
-watch($route, (route) => {
-  redirect.value = route.query && route.query.redirect;
+watchEffect(() => {
+  console.log($route.query.redirect, "route.query.redirect");
+  redirect.value = $route.query && $route.query.redirect;
 });
 
 onMounted(() => {
@@ -123,7 +124,6 @@ onMounted(() => {
 
 const getCode = () => {
   getCodeImg().then((res) => {
-    console.log(res, "res");
     codeUrl.value = res.img;
     loginForm.uuid = res.uuid;
   });
@@ -172,8 +172,10 @@ const handleLogin = () => {
       userStore
         .Login(user)
         .then(() => {
-          loading.value = false;
-          $router.push({ path: redirect.value || "/" });
+          debugger;
+          /* loading.value = false;
+          console.log(redirect.value, "redirect.value");
+          $router.push({ path: redirect.value || "/" });*/
         })
         .then(() => {
           getOcr().then((res) => {
